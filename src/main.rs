@@ -1,28 +1,58 @@
-use colored::Colorize;
-
 use crate::gtc_api::{
     ExchangeOrder, get_bases, get_crafting_recipes, get_exchange_data, get_exchange_orders,
     get_materials_data,
 };
+use clap::{Parser, Subcommand};
+use colored::Colorize;
 mod gtc_api;
+
+/// Helper tool to query the Galactic Tycoons API. Requires the environment variable GT_API_KEY to contain your API key.
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct Cli {
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Print all exchange listings for items you are selling.
+    CheckListings,
+}
+
 // TODO: clean up everything
 // TODO: add proper item API
 // TODO: add missing fields
 #[tokio::main]
 async fn main() {
-    let api_key = get_gt_api_key().unwrap();
-    // let exchange_orders = get_exchange_orders(&api_key);
-    // TODO: hardcode materials once / add a subcommand to refresh this info
-    //     let materials = get_materials_data(&api_key);
-    //     print_orders(&exchange_rders.await, &materials.await);
-    // print_exchange_data(&api_key, &exchange_orders.await).await;
-    let bases = get_bases(&api_key).await;
-    let (recipes, materials) = get_materials_data(&api_key).await;
-    let crafting_recipes = get_crafting_recipes(&recipes, &materials);
-    for base in &bases {
-        // println!("{:?}", base);
-        base.print_production(&crafting_recipes);
+    let cli = Cli::parse();
+    match &cli.command {
+        Some(Commands::CheckListings) => {
+            if let Some(api_key) = get_gt_api_key() {
+                let exchange_orders = get_exchange_orders(&api_key).await;
+                print_exchange_data(&api_key, &exchange_orders).await;
+            } else {
+                println!(
+                    "Could not find GT API key. Make sure to store it in the environment variable GT_API_KEY."
+                );
+            }
+        }
+        None => {
+            println!(
+                "Running gtc without a command is not supported. Run 'gtc help' or 'gtc --help' to see available commands."
+            )
+        }
     }
+    // // TODO: hardcode materials once / add a subcommand to refresh this info
+    // //     let materials = get_materials_data(&api_key);
+    // //     print_orders(&exchange_rders.await, &materials.await);
+    // let bases = get_bases(&api_key).await;
+    // let (recipes, materials) = get_materials_data(&api_key).await;
+    // let crafting_recipes = get_crafting_recipes(&recipes, &materials);
+    // for base in &bases {
+    //     // println!("{:?}", base);
+    //     base.print_production(&crafting_recipes);
+    // }
 }
 async fn print_exchange_data(api_key: &str, exchange_orders: &[ExchangeOrder]) -> () {
     let material_ids: std::collections::HashSet<_> =
