@@ -1733,6 +1733,7 @@ pub enum ShipTankSizeType {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[repr(i32)]
 pub enum SpecializationEnum {
     #[serde(rename = "0 = Undefined")]
     Undefined,
@@ -1756,17 +1757,17 @@ pub enum SpecializationEnum {
     Science,
 }
 
-// API Client
-pub struct ApiClient {
-    base_url: String,
-    client: reqwest::Client,
-}
+// // API Client
+// pub struct ApiClient {
+//     base_url: String,
+//     client: reqwest::Client,
+// }
 
-impl ApiClient {
-    pub fn new(base_url: impl Into<String>) -> Self {
-        Self {
-            base_url: base_url.into(),
-            client: reqwest::Client::new(),
-        }
-    }
-}
+// impl ApiClient {
+//     pub fn new(base_url: impl Into<String>) -> Self {
+//         Self {
+//             base_url: base_url.into(),
+//             client: reqwest::Client::new(),
+//         }
+//     }
+// }

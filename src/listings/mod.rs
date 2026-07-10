@@ -43,7 +43,8 @@ fn get_float_price(price: i32) -> f32 {
     price as f32 / 100f32
 }
 
-fn get_gt_api_key() -> Option<String> {
+// TODO: extract
+pub fn get_gt_api_key() -> Option<String> {
     let api_key = std::env::vars().find(|(key, _value)| key == "GT_API_KEY");
     if let Some((_, value)) = api_key {
         return Some(value);

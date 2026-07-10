@@ -1,3 +1,5 @@
+pub mod game_data;
+pub mod public_info;
 // pub async fn get_public_company_info(api_key: &str) -> String {
 //     let mut headers = reqwest::header::HeaderMap::new();
 //     headers.insert("Authorization", api_key.parse().unwrap());
@@ -115,6 +117,14 @@ impl CraftingRecipe {
             self.time_minutes
         )
     }
+}
+
+pub async fn get_public_company_info(api_key: &str) -> Option<PMyCompanyModel> {
+    if let Ok(response) = query_api("company", api_key).await {
+        let company_info: PMyCompanyModel = serde_json::from_str(&response).ok()?;
+        return Some(company_info);
+    }
+    None
 }
 
 pub fn get_crafting_recipes(
@@ -238,6 +248,8 @@ pub struct BaseInfo {
 }
 
 use itertools::Itertools;
+
+use crate::gtc_api::public_info::PMyCompanyModel;
 // temp helper
 impl BaseInfo {
     pub fn print_production(&self, recipe_definitions: &HashMap<i32, CraftingRecipe>) {
